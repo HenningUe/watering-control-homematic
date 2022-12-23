@@ -5,9 +5,9 @@ from __future__ import unicode_literals
 from datetime import timedelta as _tdelta
 import time
 
-import bewaesserung
+import watering
 
-LowBattReporter = bewaesserung.LowBattReporterViaEventTracing
+LowBattReporter = watering.LowBattReporterViaEventTracing
 LowBattReporter._min_check_period_sec = 5
 LowBattReporter._max_time_wo_notification = _tdelta(seconds=9)
 

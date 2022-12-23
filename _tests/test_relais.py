@@ -97,7 +97,7 @@ ccu = pmatic.CCU(
 # Get all HM-Sec-SC (shutter contact) devices
 print(u"Get devices")
 #schalter_garage = ccu.devices.query(device_name=u"SchalterGarage").get_first()
-bewasserung_relais = ccu.devices.get_by_name(u"BewaesserungRelais1")
+bewasserung_relais = ccu.devices.get_by_name(u"WateringRelais1")
 #all_devs = ccu.devices.query(device_name_regex=u".*")
 #schalter_garage = all_devs.get_device_or_channel_by_address(u'MEQ0741367')
 
