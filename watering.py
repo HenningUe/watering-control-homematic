@@ -24,12 +24,7 @@ _ddatet = datetime.datetime
 _tdelta = datetime.timedelta
 
 # TODO:  # @NOSONAR @DontTrace
-# > GEMACHT: Enable Beweasserung > Autom nach 3 Std.
-# > GEMACHT: Bug korrigieren
-# > BIOS-Einstellung: Bei Stromunterbr > Autom. Neustart
-# > Triggerports-Events mit einbauen
-# > WinSleepInhibit
-# > Bei Neustart > Alten Stand wieder herstellen
+# > If restarted > restore old state
 
 
 def runs_in_offline_sim_mode():
@@ -682,7 +677,7 @@ class TimeConstants(object):
     waterlvlsensor_empty_time_change_treshold = 2 * 60 * 60
     waterlvlsensor_full_time_change_treshold = 2 * 60 * 60
     autowatering_warte_zeit_bevor_start = 1 * 60 * 60
-    autowatering_max_waterings_zeit = 8 * 60
+    autowatering_max_watering_time = 8 * 60
     autowatering_max_delta_zeit_zwischen_balkonen = 24 * 60 * 60
     autowatering_max_zeit_ohne_watering = 2 * 24 * 60 * 60
     history_flushing_time_span = 7 * 24 * 60 * 60
@@ -703,8 +698,8 @@ class TimeConstants(object):
             cls.dauer_hauptventil_alleine_max = offsim_time_csts.dauer_hauptventil_alleine_max
             cls.autowatering_warte_zeit_bevor_start = \
                 offsim_time_csts.autowatering_warte_zeit_bevor_start
-            cls.autowatering_max_waterings_zeit = \
-                offsim_time_csts.autowatering_max_waterings_zeit
+            cls.autowatering_max_watering_time = \
+                offsim_time_csts.autowatering_max_watering_time
             cls.autowatering_max_delta_zeit_zwischen_balkonen = \
                 offsim_time_csts.autowatering_max_delta_zeit_zwischen_balkonen
             cls.autowatering_max_zeit_ohne_watering = \
@@ -722,7 +717,7 @@ class TimeConstants(object):
             cls.dauer_hauptventil_alleine = 20.0  # sec
             cls.dauer_hauptventil_alleine_max = 60.0
             cls.autowatering_warte_zeit_bevor_start = 3.0
-            cls.autowatering_max_waterings_zeit = 70.0
+            cls.autowatering_max_watering_time = 70.0
             cls.autowatering_max_delta_zeit_zwischen_balkonen = 120.0
             cls.autowatering_max_zeit_ohne_watering = 160
             cls.waterlvlsensor_full_time_change_treshold = 2
@@ -1445,7 +1440,7 @@ class EventBalconyWateringSued(EventBalconyWateringAll):
 
     @classmethod
     def modify_timeline_items(cls, _timeline, offset=None):
-        duration = TimeConstants.autowatering_max_waterings_zeit
+        duration = TimeConstants.autowatering_max_watering_time
         return cls._get_modified_watering_timeline_items(_timeline, cls.my_valve, duration, offset)
 
 
@@ -1454,7 +1449,7 @@ class EventBalconyWateringWest(EventBalconyWateringAll):
 
     @classmethod
     def modify_timeline_items(cls, _timeline, offset=None):
-        duration = TimeConstants.autowatering_max_waterings_zeit
+        duration = TimeConstants.autowatering_max_watering_time
         return cls._get_modified_watering_timeline_items(_timeline, cls.my_valve, duration, offset)
 
 
@@ -2149,7 +2144,7 @@ class AutoWateringBalconies(object):
         self._timer_lag_time_before_starting_watering = \
             TimerSimple(timeout=TimeConstants.autowatering_warte_zeit_bevor_start)
         self._timer_max_watering_time = \
-            TimerSimple(timeout=TimeConstants.autowatering_max_waterings_zeit)
+            TimerSimple(timeout=TimeConstants.autowatering_max_watering_time)
         self._max_watering_time_excess_occured = False
         self._is_ready_for_watering = False
         self._temp_data = dict()

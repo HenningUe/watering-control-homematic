@@ -17,7 +17,7 @@ class TimeConstants(object):
 
     # balconies
     autowatering_warte_zeit_bevor_start = 3.0  # sec
-    autowatering_max_waterings_zeit = 8.0
+    autowatering_max_watering_time = 8.0
     autowatering_max_delta_zeit_zwischen_balkonen = 15
     autowatering_max_zeit_ohne_watering = 15
     history_flushing_time_span = 40

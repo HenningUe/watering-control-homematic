@@ -121,7 +121,7 @@ def create_devices(ccu):
                                                     u"default": 0})
         ccu.devices.add(ch)
 
-    # relais:
+    # Relais Rail 1
     spec = dict()
     spec[u"type"] = u"HM-LC-Sw4-DR"
     spec[u"name"] = u"WateringRelais1"
@@ -159,67 +159,43 @@ def create_devices(ccu):
                                                     u"default": 0})
         ccu.devices.add(ch)
 
-#     # Wasserfuellstandssensor (Temperaturdifferenz-Sensor)
-#     spec = dict()
-#     spec[u"type"] = u"HM-WDS30-OT2-SM-2"
-#     spec[u"name"] = u"WasserstandsSensorSued"
-#     spec[u"address"] = get_address()
-#     fuellstand_sensor_sued = entities.Device.from_dict(ccu, spec)
-#     channels_spec_dict = [
-#         {u"type": u"MAINTENANCE",
-#          u"address": get_address(),
-#          u"index": get_index(reset=True)},
-#         {u"type": u"TEMPERATURE",
-#          u"name": u"Temperatur1",
-#          u"alias": u"WiderstandVoll",
-#          u"address": get_address(),
-#          u"index": get_index()},
-#         {u"type": u"TEMPERATURE",
-#          u"name": u"Temperatur2",
-#          u"alias": u"WiderstandLeer",
-#          u"address": get_address(),
-#          u"index": get_index()}]
-#     channels = entities.Channel.from_channel_dicts(fuellstand_sensor_sued, channels_spec_dict)
-#     fuellstand_sensor_sued.channels = channels
-#     ccu.devices.add(fuellstand_sensor_sued)
-#     for ch in channels:
-#         ch.values[u"STATE"] = params.Parameter(ch, {u"operations": 7,
-#                                                     u"default": 0})
-#         if isinstance(ch, getattr(entities, u'ChannelTemperature')):
-#             ch.values[u"TEMPERATURE"] = params.Parameter(ch, {u"operations": 7,
-#                                                               u"default": 0})
-#         ccu.devices.add(ch)
-#
-#     # Wasserfuellstandssensor (Temperaturdifferenz-Sensor)
-#     spec = dict()
-#     spec[u"type"] = u"HM-WDS30-OT2-SM-2"
-#     spec[u"name"] = u"WasserstandsSensorWest"
-#     spec[u"address"] = get_address()
-#     fuellstand_sensor_west = entities.Device.from_dict(ccu, spec)
-#     channels_spec_dict = [
-#         {u"type": u"MAINTENANCE",
-#          u"address": get_address(),
-#          u"index": get_index(reset=True)},
-#         {u"type": u"TEMPERATURE",
-#          u"name": u"Temperatur1",
-#          u"alias": u"WiderstandVoll",
-#          u"address": get_address(),
-#          u"index": get_index()},
-#         {u"type": u"TEMPERATURE",
-#          u"name": u"Temperatur2",
-#          u"alias": u"WiderstandLeer",
-#          u"address": get_address(),
-#          u"index": get_index()}]
-#     channels = entities.Channel.from_channel_dicts(fuellstand_sensor_west, channels_spec_dict)
-#     fuellstand_sensor_west.channels = channels
-#     ccu.devices.add(fuellstand_sensor_west)
-#     for ch in channels:
-#         ch.values[u"STATE"] = params.Parameter(ch, {u"operations": 7,
-#                                                     u"default": 0})
-#         if isinstance(ch, getattr(entities, u'ChannelTemperature')):
-#             ch.values[u"TEMPERATURE"] = params.Parameter(ch, {u"operations": 7,
-#                                                               u"default": 0})
-#         ccu.devices.add(ch)
+    # Relais Rail 2
+    spec = dict()
+    spec[u"type"] = u"HM-LC-Sw4-DR"
+    spec[u"name"] = u"WateringRelais2"
+    spec[u"address"] = get_address()
+    watering_relais_2 = entities.Device.from_dict(ccu, spec)
+    channels_spec_dict = [
+        {u"type": u"MAINTENANCE",
+         u"address": get_address(),
+         u"index": get_index(reset=True)},
+        {u"type": u"SWITCH",
+         u"name": u"WateringRelais2_Kanal1",
+         u"alias": u"VentWateringFlowBedUpper",
+         u"address": get_address(),
+         u"index": get_index()},
+        {u"type": u"SWITCH",
+         u"name": u"WateringRelais2_Kanal2",
+         u"alias": u"VentWateringFlowBedLower",
+         u"address": get_address(),
+         u"index": get_index()},
+        {u"type": u"SWITCH",
+         u"name": u"WateringRelais2_Kanal3",
+         u"alias": u"Void1",
+         u"address": get_address(),
+         u"index": get_index()},
+        {u"type": u"SWITCH",
+         u"name": u"WateringRelais2_Kanal4",
+         u"alias": u"Void2",
+         u"address": get_address(),
+         u"index": get_index()}]
+    channels = entities.Channel.from_channel_dicts(watering_relais_2, channels_spec_dict)
+    watering_relais_2.channels = channels
+    ccu.devices.add(watering_relais_2)
+    for ch in channels:
+        ch.values[u"STATE"] = params.Parameter(ch, {u"operations": 7,
+                                                    u"default": 0})
+        ccu.devices.add(ch)
 
     # FuellstandSensorSued ShutterContact
     spec = dict()
