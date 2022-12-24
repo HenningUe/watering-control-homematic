@@ -24,12 +24,7 @@ _ddatet = datetime.datetime
 _tdelta = datetime.timedelta
 
 # TODO:  # @NOSONAR @DontTrace
-# > GEMACHT: Enable Beweasserung > Autom nach 3 Std.
-# > GEMACHT: Bug korrigieren
-# > BIOS-Einstellung: Bei Stromunterbr > Autom. Neustart
-# > Triggerports-Events mit einbauen
-# > WinSleepInhibit
-# > Bei Neustart > Alten Stand wieder herstellen
+# > If restarted > restore old state
 
 
 def runs_in_offline_sim_mode():
