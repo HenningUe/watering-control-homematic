@@ -2,7 +2,7 @@
 **_Scripts running on homematic's CCU2 to automate garden watering_**
 
 ### Table of Contents
-**[What is this about?](#What is this about?)**<br>
+**[What is this about?](#What-is-this-about?)**<br>
 **[My requirements](#My requirements)**<br>
 **[Equipment](#Equipment)**<br>
 **[Compatibility](#compatibility)**<br>
