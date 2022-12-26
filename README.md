@@ -1,9 +1,14 @@
 # watering-control-homematic
 **_Scripts running on homematic's CCU2 to automate garden watering_**
 
-### Table of Contents
-**[What is this about?](#What-is-this-about?)**<br>
-**[My requirements](#My requirements)**<br>
+### Table of Contents- 
+[What is this about?](#what-is-this-about-)
+- [My requirements](#my-requirements)
+- [Equipment](#equipment)
+- [Realization](#realization)
+- [How to make this run?](#how-to-make-this-run-)
+**[What is this about?](#What-is-this-about-)**<br>
+**[My requirements](#my-requirements)**<br>
 **[Equipment](#Equipment)**<br>
 **[Compatibility](#compatibility)**<br>
 **[Notes and Miscellaneous](#notes-and-miscellaneous)**<br>
