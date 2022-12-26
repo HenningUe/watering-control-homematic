@@ -1,6 +1,15 @@
 # watering-control-homematic
 **_Scripts running on homematic's CCU2 to automate garden watering_**
 
+### Table of Contents
+**[What is this about?](#What is this about?)**<br>
+**[My requirements](#My requirements)**<br>
+**[Equipment](#Equipment)**<br>
+**[Compatibility](#compatibility)**<br>
+**[Notes and Miscellaneous](#notes-and-miscellaneous)**<br>
+**[Building the Extension Bundles](#building-the-extension-bundles)**<br>
+**[Next Steps, Credits, Feedback, License](#next-steps)**<br>
+
 #### What is this about?
 At home we have eight flower boxes - four on each balcony - which are exposed to the full sun. The agreement between my wife and me was as follows: The high-maintenance flower boxes may only hang if I am allowed to tinker with the automation :-). What I have done and expanded.
 
