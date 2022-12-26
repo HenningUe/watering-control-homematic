@@ -2236,7 +2236,7 @@ class AutoWateringBalconies(object):
             return False
         if self._timer_lag_time_before_starting_watering.is_not_running():
             if self._water_level_sensor.is_empty():
-                logger.info("{} starte Totzeit timer".format(self.name))
+                logger.info("{} ststart dead timeimer".format(self.name))
                 self._timer_lag_time_before_starting_watering.start()
             return False
         elif not self._timer_lag_time_before_starting_watering.is_timeout_reached():
@@ -2336,13 +2336,23 @@ class AutoWateringBalconies(object):
 
 def create_ccu_obj():
     global ccu_obj
+    try:
+        import ccu_connection
+        USER = ccu_connection.USER
+        PASSWORD = ccu_connection.PASSWORD
+        CCU_URL = ccu_connection.CCU_URL
+    except ImportError:
+        USER = "Admin"
+        PASSWORD = "Put your password here or place it in ccu_connection"
+        CCU_URL = "Put your CCU-address here or place it in ccu_connection"
+
     # Open up a remote connection via HTTP to the CCU and login as admin. When the connection
     # can not be established within 5 seconds it raises an exception.
     kwargs = {
         # TODO: Replace this with the URL to your CCU2.  # @NOSONAR @DontTrace
-        u'address': u"http://172.19.76.11",
+        u'address': CCU_URL,
         # TODO: Insert your credentials here.  # @NOSONAR @DontTrace
-        u'credentials': (u"Admin", u"YetAPW123"),
+        u'credentials': (USER, PASSWORD),
         u'connect_timeout': 12}
     ccu_obj = pmatic.CCU(**kwargs)
     return ccu_obj
