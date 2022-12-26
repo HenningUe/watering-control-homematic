@@ -45,8 +45,16 @@ At home we have eight flower boxes - four on each balcony - which are exposed to
     * navigate to ```%PathToYourPyVersion%/Scripts```
     * Call ```pip install -r /path/to/requirements.txt``` ("requirements.txt" is part of this repo)
 5. Copy files manually to virtenv
-    * copy "watering.py", "offsim/" and "tests/" to folder  ```%PathToYourPyVersion%/Lib``` 
+    * copy "watering.py", "offsim/" and "tests/" to folder  ```%PathToYourPyVersion%/Scripts``` 
 6. Execute scenario
+    * navigate to ```%PathToYourPyVersion%/Scripts```
+    * call ```python "%PathToTestScript%"```, e.g. ```python "%TEMP%"\water\Scripts\tests\offline\n40_beweassern_auto\n020_bewaess_automatic.py"```
+    * Note: Not all scripts under ```./tests/offline/.``` are maintained, i.e. some may not be executable
 
+#### How to make this run online on your local PC
+1. Make sure py 2.7 is installed
+2. Prepare environment as described above.
+3. Execute ```python watering.py```
 
-#### How to make this run offline
+#### How to make this run online on your CCU2
+1. Follow the instructions on 
