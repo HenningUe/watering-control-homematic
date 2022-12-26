@@ -31,7 +31,7 @@ At home we have eight flower boxes - four on each balcony - which are exposed to
 * Half of the work was about installing the hardware (tubes, electrical cicuits, ..)
 * The other half of the time need was invested in programming
 
-#### How to make this run
+#### How to make this run offline
 1. Make sure py 2.7 is installed
 2. Install virtualenv:
     * Detailed explanation is given here: https://learnpython.com/blog/how-to-use-virtualenv-python/
@@ -41,4 +41,11 @@ At home we have eight flower boxes - four on each balcony - which are exposed to
     * navigate to ```%PathToYourPyVersion%/Scripts```
     * Call ```virtualenv -p python "%PathWhereYourVirtEnvResides%\watering"```
 4. Install requirements
-    * 
+    * navigate to ```%PathToYourPyVersion%/Scripts```
+    * Call ```pip install -r /path/to/requirements.txt``` ("requirements.txt" is part of this repo)
+5. Copy files manually to virtenv
+    * copy "watering.py", "offsim/" and "tests/" to folder  ```%PathToYourPyVersion%/Lib``` 
+6. Execute scenario
+
+
+#### How to make this run offline
