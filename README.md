@@ -6,7 +6,8 @@
 **[My requirements](#my-requirements)**<br>
 **[Equipment](#Equipment)**<br>
 **[Realization](#realization)**<br>
-**[How to make this run](#how-to-make-this-run)**<br>
+**[How to make this run offline?](#how-to-make-this-run-offline)**<br>
+**[How to make this run online?](#how-to-make-this-run-online)**<br>
 
 #### What is this about
 At home we have eight flower boxes - four on each balcony - which are exposed to the full sun. The agreement between my wife and me was as follows: The high-maintenance flower boxes may only hang if I am allowed to tinker with the automation :-). What I have done and expanded.
