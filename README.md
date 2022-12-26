@@ -35,10 +35,10 @@ At home we have eight flower boxes - four on each balcony - which are exposed to
 1. Make sure py 2.7 is installed
 2. Install virtualenv:
     * Detailed explanation is given here: https://learnpython.com/blog/how-to-use-virtualenv-python/
-    * navigate to %PathToYourPyVersion%/Scripts
+    * navigate to ```%PathToYourPyVersion%/Scripts```
     * Call "pip install virtualenv"
 3. Create virtual environment
-    * navigate to %PathToYourPyVersion%/Scripts
-    * Call "virtualenv -p python %PathWhereYourVirtEnvResides%\watering"
+    * navigate to ```%PathToYourPyVersion%/Scripts```
+    * Call ```virtualenv -p python "%PathWhereYourVirtEnvResides%\watering"```
 4. Install requirements
     * 
