@@ -7,7 +7,8 @@
 **[Equipment](#Equipment)**<br>
 **[Realization](#realization)**<br>
 **[How to make this run offline?](#how-to-make-this-run-offline)**<br>
-**[How to make this run online?](#how-to-make-this-run-online)**<br>
+**[How to make this run online on local PC?](#how-to-make-this-run-online-on-local-pc)**<br>
+**[How to make this run online on CCU2?](#how-to-make-this-run-online-on-ccu2)**<br>
 
 #### What is this about
 At home we have eight flower boxes - four on each balcony - which are exposed to the full sun. The agreement between my wife and me was as follows: The high-maintenance flower boxes may only hang if I am allowed to tinker with the automation :-). What I have done and expanded.
@@ -51,10 +52,15 @@ At home we have eight flower boxes - four on each balcony - which are exposed to
     * call ```python "%PathToTestScript%"```, e.g. ```python "%TEMP%"\water\Scripts\tests\offline\n40_beweassern_auto\n020_bewaess_automatic.py"```
     * Note: Not all scripts under ```./tests/offline/.``` are maintained, i.e. some may not be executable
 
-#### How to make this run online on your local PC
+#### How to make this run online on local PC
 1. Make sure py 2.7 is installed
 2. Prepare environment as described above.
+2. Create ```ccu_connection.py``` next to ```watering.py``` and add credentionals and CCU-URL.
 3. Execute ```python watering.py```
 
-#### How to make this run online on your CCU2
-1. Follow the instructions on 
+#### How to make this run online on CCU2
+1. Follow the instructions on https://larsmichelsen.github.io/pmatic/doc/install.html#installation-on-the-ccu2 to install package
+2. Navigate to http://your.ccu2.url:9120/
+3. Upload ```ccu_connection.py``` and ```watering.py```
+4. Add a schedule to make ```watering.py``` run on every CCU2-start
+
