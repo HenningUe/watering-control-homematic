@@ -5,7 +5,6 @@
 **[What is this about?](#What-is-this-about)**<br>
 **[My requirements](#my-requirements)**<br>
 **[Equipment](#Equipment)**<br>
-**[Realization](#realization)**<br>
 **[How to make this run offline?](#how-to-make-this-run-offline)**<br>
 **[How to make this run online on local PC?](#how-to-make-this-run-online-on-local-pc)**<br>
 **[How to make this run online on CCU2?](#how-to-make-this-run-online-on-ccu2)**<br>
@@ -22,16 +21,11 @@ At home we have eight flower boxes - four on each balcony - which are exposed to
 * The system should run autonomously and be easy to maintain and extend
 * \[Due to these requirements I implemented my own watering script instead of using something off-the-shelf like OpenSprinkler\]
 
-
 #### Equipment
 * Most of the watering hardware is from Gardena, e.g. 24V watering valves
 * Most of the electrical equipment is from ELV's homematic product line, like wireless relays, wireless switches and so on
 * ELV's CCU2 is used as control center, i.e. the automation code is running on
 * Software is based on https://github.com/LarsMichelsen/pmatic
-
-#### Realization 
-* Half of the work was about installing the hardware (tubes, electrical cicuits, ..)
-* The other half of the time need was invested in programming
 
 #### How to make this run offline
 1. Make sure py 2.7 is installed
