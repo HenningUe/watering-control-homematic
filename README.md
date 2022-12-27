@@ -1,7 +1,7 @@
 # ![Watering can](watering-can.png) watering-control-homematic
 **_Scripts running on homematic's CCU2 to automate garden watering_**
 
-### Table of Contents- 
+### Table of Contents
 **[What is this about?](#What-is-this-about)**<br>
 **[My requirements](#my-requirements)**<br>
 **[Equipment](#Equipment)**<br>
