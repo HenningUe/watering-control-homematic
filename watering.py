@@ -19,6 +19,10 @@ try:
     import multiprocessing
 except Exception:
     multiprocessing = None
+try:
+    import ccu_connection
+except ImportError:
+    raise IOError("please provide ccu_connection.py")
 
 _ddatet = datetime.datetime
 _tdelta = datetime.timedelta
@@ -215,16 +219,77 @@ class DebugExceptionSim(object):
             raise pmatic.PMException()
 
 
+class PushoverPatched(notify.Pushover):
+
+    @classmethod
+    def send(cls, message, title=None, api_token=None, user_token=None,
+             priority=None):
+        """Send a notification via pushover.net.
+
+        This class method can be used to send out custom notifiations to your tablet or
+        mobile phone using pushover.net. To be able to send such notifications you need
+        to register with pushover.net, register your appliation to obtaion an API token
+        and a user or group token.
+
+        If you have both, you can use this class method to send a notification containing
+        only a *message*. But you can also provide an optional *title*.
+
+        It returns ``True`` when the notification has been sent or raises a
+        :class:`.pmatic.PMUserError` when either an invalid *message* or *title* is provided.
+        In case of errors during sending the notification, a :class:`.pmatic.PMException`
+        is raised.
+        """
+        api_token, user_token = cls._load_tokens(api_token, user_token)
+
+        if not message:
+            raise PMUserError("A message has to be specified.")
+
+        if not utils.is_text(message):
+            raise PMUserError("The message needs to be a unicode string.")
+
+        encoded_msg = message.encode("utf-8")
+        if len(encoded_msg) > 1024:
+            raise PMUserError("The message exceeds the maximum length of 1024 characters.")
+
+        msg = [
+            ("token", api_token.encode("utf-8")),
+            ("user", user_token.encode("utf-8")),
+            ("message", encoded_msg),
+        ]
+
+        if title != None:
+            if not utils.is_text(title):
+                raise PMUserError("The title needs to be a unicode string.")
+
+            encoded_title = title.encode("utf-8")
+            if len(encoded_title) > 250:
+                raise PMUserError("The title exceeds the maximum length of 250 characters.")
+            msg.append(("title", encoded_title))
+        if priority is not None:
+            if priority == "urgent":
+                priority = 2
+            else:
+                raise ValueError("priority")
+            msg.append(("priority", priority))
+            if priority == 2:
+                # expire and retry needed with priority "urgend"
+                msg.append(("expire", 10 * 60))  # expiration time in seconds
+                msg.append(("retry", 2 * 60))  # time to retry in seconds
+
+        handle = urlopen("https://api.pushover.net/1/messages.json",
+                         data=urlencode(msg).encode("utf-8"))
+        return cls._check_response(handle)
+
+
 class Log(object):
     _funcs_ids = defaultdict(int)
 
     @staticmethod
     def init():
-        global logger
-        # user_token=u"ud9ujk7p43pwxpejkeerm9b9jj3ra6"
-        group_token = u"g7pzn3a7hagx5rso2yrty213ycb668"
-        notify.Pushover.set_default_tokens(api_token=u"afx1tgyh3quxic22n5r77hz1zpgd9n",
-                                           user_token=group_token)
+        user = ccu_connection.PUSHOVER_USER_TOKEN
+        api_token = ccu_connection.PUSHOVER_API_TOKEN
+        PushoverPatched.set_default_tokens(api_token=api_token,
+                                           user_token=user)
 
     @classmethod
     def info_pushover(cls, msg, title=None, force=False):
@@ -249,7 +314,8 @@ class Log(object):
         global logger
         if runs_in_production():
             logger.error(msg)
-            cls._pushover_send_msg_ex_catched("ERROR: {}".format(msg), title)
+            cls._pushover_send_msg_ex_catched("ERROR: {}".format(msg),
+                                              title, priority="urgent")
         else:
             logger.error("[PUSHOVER] {}".format(msg))
 
@@ -305,14 +371,14 @@ class Log(object):
         if runs_in_offline_sim_mode() or Debug.OMIT_PUSHOVER_SEND():
             print(u"Pushover:\n[{}]:\n{}".format(title, msg))
             return
-        cls._pushover_send_msg_ex_catched(msg, title)
+        cls._pushover_send_msg_ex_catched(msg, title, priority="urgent")
 
     @staticmethod
-    def _pushover_send_msg_ex_catched(msg, title):
+    def _pushover_send_msg_ex_catched(msg, title, priority=None):
         if msg[0] == "\n":
             msg = msg[1:]
         try:
-            notify.Pushover.send(msg, title)
+            notify.Pushover.send(msg, title, priority=priority)
         except Exception:
             pass
 
@@ -463,6 +529,8 @@ class IterantExecSampler(object):
                 kwargs.update(refeed_kwargs)
                 return self._get_embedded_run_func(*args, **kwargs)
             except Exception as ex:
+                if runs_in_production():
+                    os.system("shutdown -r")
                 if self._exec_types_to_catch is not None \
                    and type(ex) not in self._exec_types_to_catch:
                     raise
@@ -1778,14 +1846,18 @@ class WateringControlRelais(object):
                                                      intermediate_wait_time=10.0,
                                                      exec_types_to_catch=(KeyError,),
                                                      exec_type_to_raise=RelaisInitError)
-        cls.watering_relais_rail_1 = func_sampler.run(u"WateringRelais1")
+        cls.watering_relais_rail_1 = func_sampler.run(u"BewaesserungRelais1")
+        if cls.watering_relais_rail_1 is None:
+            raise ValueError(u"No relais named 'BewaesserungRelais1'")
 
         cls.watering_relais_rail_1.relais1.switch_on_time = None
         cls.watering_relais_rail_1.relais2.switch_on_time = None
         cls.watering_relais_rail_1.relais3.switch_on_time = None
         cls.watering_relais_rail_1.relais4.switch_on_time = None
 
-        cls.watering_relais_rail_2 = func_sampler.run(u"WateringRelais2")
+        cls.watering_relais_rail_2 = func_sampler.run(u"BewaesserungRelais2")
+        if cls.watering_relais_rail_2 is None:
+            raise ValueError(u"No relais named 'BewaesserungRelais2'")
 
         cls.watering_relais_rail_2.relais1.switch_on_time = None
         cls.watering_relais_rail_2.relais2.switch_on_time = None
@@ -2336,16 +2408,9 @@ class AutoWateringBalconies(object):
 
 def create_ccu_obj():
     global ccu_obj
-    try:
-        import ccu_connection
-        USER = ccu_connection.USER
-        PASSWORD = ccu_connection.PASSWORD
-        CCU_URL = ccu_connection.CCU_URL
-    except ImportError:
-        USER = "Admin"
-        PASSWORD = "Put your password here or place it in ccu_connection"
-        CCU_URL = "Put your CCU-address here or place it in ccu_connection"
-
+    USER = ccu_connection.USER
+    PASSWORD = ccu_connection.PASSWORD
+    CCU_URL = ccu_connection.CCU_URL
     # Open up a remote connection via HTTP to the CCU and login as admin. When the connection
     # can not be established within 5 seconds it raises an exception.
     kwargs = {
