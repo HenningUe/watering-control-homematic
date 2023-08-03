@@ -1,0 +1,7 @@
+/pmatic
+*.pyc
+ccu_connection.*
+_todo
+scriptold
+pmatic_examples
+requests

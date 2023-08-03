@@ -1,8 +1,2 @@
-certifi==2021.10.8
-chardet==4.0.0
-idna==2.10
-pmatic==0.6
-pytz==2022.7
-requests==2.27.1
-simpleTR64==1.0.6
-urllib3==1.26.13
+requests
+pmatic
