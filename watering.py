@@ -20,9 +20,16 @@ try:
 except Exception:
     multiprocessing = None
 try:
-    import ccu_connection
+    import watering_settings as settings
 except ImportError:
-    raise IOError("please provide ccu_connection.py")
+    # watering_settings must have these constants    
+    # USER = "<CCU2-user>"
+    # PASSWORD = "<CCU2-PW>"
+    # CCU_URL = "<CCU2-IP-address>"
+    #
+    # PUSHOVER_API_TOKEN ="<PUSHOVER_API_TOKEN>"
+    # PUSHOVER_USER_TOKEN="<PUSHOVER_USER_TOKEN>"
+    raise IOError("please provide watering_settings.py")
 
 _ddatet = datetime.datetime
 _tdelta = datetime.timedelta
@@ -239,11 +246,22 @@ class PushoverPatched(notify.Pushover):
         In case of errors during sending the notification, a :class:`.pmatic.PMException`
         is raised.
         """
+        import pmatic.utils as utils            
+        try:
+            from urllib.request import urlopen
+        except ImportError:
+            from urllib2 import urlopen        
+        try:
+            # Python 2
+            from urllib import urlencode
+        except ImportError:
+            # Python 3+
+            from urllib.parse import urlencode
+        
         api_token, user_token = cls._load_tokens(api_token, user_token)
 
         if not message:
             raise PMUserError("A message has to be specified.")
-
         if not utils.is_text(message):
             raise PMUserError("The message needs to be a unicode string.")
 
@@ -285,11 +303,9 @@ class Log(object):
     _funcs_ids = defaultdict(int)
 
     @staticmethod
-    def init():
-        user = ccu_connection.PUSHOVER_USER_TOKEN
-        api_token = ccu_connection.PUSHOVER_API_TOKEN
-        PushoverPatched.set_default_tokens(api_token=api_token,
-                                           user_token=user)
+    def init():        
+        PushoverPatched.set_default_tokens(api_token=settings.PUSHOVER_API_TOKEN,
+                                           user_token=settings.PUSHOVER_USER_TOKEN)
 
     @classmethod
     def info_pushover(cls, msg, title=None, force=False):
@@ -378,7 +394,7 @@ class Log(object):
         if msg[0] == "\n":
             msg = msg[1:]
         try:
-            notify.Pushover.send(msg, title, priority=priority)
+            PushoverPatched.send(msg, title, priority=priority)
         except Exception:
             pass
 
@@ -2408,9 +2424,9 @@ class AutoWateringBalconies(object):
 
 def create_ccu_obj():
     global ccu_obj
-    USER = ccu_connection.USER
-    PASSWORD = ccu_connection.PASSWORD
-    CCU_URL = ccu_connection.CCU_URL
+    USER = settings.USER
+    PASSWORD = settings.PASSWORD
+    CCU_URL = settings.CCU_URL
     # Open up a remote connection via HTTP to the CCU and login as admin. When the connection
     # can not be established within 5 seconds it raises an exception.
     kwargs = {
