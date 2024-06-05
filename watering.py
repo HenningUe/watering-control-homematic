@@ -529,12 +529,14 @@ class IterantExecSampler(object):
 
     def __init__(self, sampler_func, max_try_count=1,
                  intermediate_wait_time=5.0, exec_types_to_catch=None,
-                 exec_type_to_raise=None):
+                 exec_type_to_raise=None,
+                 reboot_on_err=False):
         self.sampler_func = sampler_func
         self.max_try_count = max_try_count
         self.intermediate_wait_time = intermediate_wait_time
         self._exec_types_to_catch = exec_types_to_catch
         self._exec_type_to_raise = exec_type_to_raise
+        self.reboot_on_err = reboot_on_err
         self._try_counter = 0
 
     def run(self, *args, **kwargs):  # @IgnorePep8 @NOSONAR
@@ -545,8 +547,8 @@ class IterantExecSampler(object):
                 kwargs.update(refeed_kwargs)
                 return self._get_embedded_run_func(*args, **kwargs)
             except Exception as ex:
-                if runs_in_production():
-                    os.system("shutdown -r")
+                if runs_in_online_sim_mode():
+                    raise
                 if self._exec_types_to_catch is not None \
                    and type(ex) not in self._exec_types_to_catch:
                     raise
@@ -558,6 +560,9 @@ class IterantExecSampler(object):
                     msg = ("  Function '{}' failed after {} trails."
                            .format(f_name, self._try_counter))
                     Log.error_pushover(msg, "Function '{}' failure".format(f_name))
+                    if self.reboot_on_err:
+                        Log.error_pushover(msg, "Restarting CCU ..")
+                        os.system("/sbin/reboot")
                     if self._exec_type_to_raise is None:
                         raise
                     else:
@@ -582,7 +587,8 @@ class IterantExecSamplerForProcess(IterantExecSampler):
 
     def __init__(self, sampler_func, max_try_count=1,
                  intermediate_wait_time=5.0, exec_types_to_catch=None,
-                 exec_type_to_raise=None):
+                 exec_type_to_raise=None,
+                 reboot_on_err=False):
         kwargs = copy.copy(locals())
         kwargs.pop('self')
         super(IterantExecSamplerForProcess, self).__init__(**kwargs)
@@ -1858,7 +1864,7 @@ class WateringControlRelais(object):
             relais1 = ccu_obj.devices.get_by_name(relais_name)
             return relais1
 
-        func_sampler = IterantExecSamplerForFunction(func_to_run, max_try_count=5,
+        func_sampler = IterantExecSamplerForFunction(func_to_run, max_try_count=1,
                                                      intermediate_wait_time=10.0,
                                                      exec_types_to_catch=(KeyError,),
                                                      exec_type_to_raise=RelaisInitError)
@@ -2113,12 +2119,20 @@ class AutoWateringBeds(object):
         while True:
             if cls.break_required():
                 break
+            if not cls.inside_season():
+                time.sleep(24 * 3600)
+                continue
             for i_time, start_time in enumerate(start_times):
                 if _ddatet.now() > start_time:
                     start_times[i_time] = dt_repl_func(start_time, 1)
                     TimeLineWorker.add_event_item(EventBedLowerWatering)
                     TimeLineWorker.add_event_item(EventBedUpperWatering)
             time.sleep(5.0)
+
+    @classmethod
+    def inside_season(cls):
+        now = _ddatet.now()
+        return 5 <= now.month <= 10 
 
     @classmethod
     def break_required(cls):
@@ -2460,7 +2474,8 @@ class MainLoop(object):
         func_sampler = class_to_use(cls.main_event_loop_ex, max_try_count=5,
                                     intermediate_wait_time=intermediate_wait_time,
                                     exec_types_to_catch=(pmatic.PMConnectionError,
-                                                         pmatic.PMException, RelaisInitError,))
+                                                         pmatic.PMException, RelaisInitError,),
+                                    reboot_on_err=True)
         func_sampler.run(**run_args)
 
     @classmethod
@@ -2480,9 +2495,9 @@ class MainLoop(object):
         ExceptionsInThreadsContainer.clear_threads_list()
         ThreadContainer.clear_threads_lists()
         if runs_in_production() and not Debug.SKIP_INIT_WAITING():
-            INIT_WAIT_SEC = 4 * 60
-            logger.info(u"Initially waiting {} sec".format(INIT_WAIT_SEC))
-            time.sleep(INIT_WAIT_SEC)
+            init_wait_time = settings.INIT_WAIT_SEC
+            logger.info(u"Initially waiting {} sec".format(init_wait_time))
+            time.sleep(init_wait_time)
         ccu_obj = create_ccu_obj()
         logger.info(u"Init devices")
         if runs_in_offline_sim_mode():
@@ -2509,7 +2524,7 @@ class MainLoop(object):
         if runs_in_offline_sim_mode():
             return
         logger.info(u"Init events")
-        func_sampler = IterantExecSamplerForFunction(ccu_obj.events.init, max_try_count=5,
+        func_sampler = IterantExecSamplerForFunction(ccu_obj.events.init, max_try_count=1,
                                                      intermediate_wait_time=lambda tc: tc * 5.0,)
         func_sampler.run()
         logger.info("  Events successfully initialized")
