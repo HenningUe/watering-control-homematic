@@ -54,6 +54,7 @@ if runs_in_offline_sim_mode():
     from offsim import pmaticpatched as pmatic  # @Reimport
     from offsim import consts as offsimconsts
     from offsim import devicecreator, simthread, simtime, flowerpots, simdatetime
+    from offsim.pmaticpatched.exceptions import PMUserError  # @Reimport @UnusedImport
     from offsim.pmaticpatched import (entities, ccu, notify)  # @Reimport @UnusedImport
     time = simtime
     datetime = simdatetime
@@ -68,6 +69,7 @@ if runs_in_offline_sim_mode():
 else:
     import pmatic  # @Reimport
     from pmatic import (entities, ccu, notify)  # @UnusedImport @Reimport
+    from pmatic.exceptions import PMUserError  # @UnusedImport @Reimport
     pmatic.logging(logging.INFO)
     logger = pmatic.logger
 
@@ -195,7 +197,7 @@ class Debug(object):
 
 
 class DebugExceptionSim(object):
-    ON = True
+    ON = False
     SIM_RELAIS_EX_IS_ON = True
     WAIT_TIME_BEFORE_FIRST_ERROR_TIME_IN_SEC = 30.0
     state_holder = dict()
@@ -819,7 +821,7 @@ TimeConstants.adapt_times()
 
 class LowBattReporter(object):
     low_batt_items = dict()
-    _msg_repetition_period = _tdelta(days=2)
+    _msg_repetition_period = _tdelta(days=7)
 
     @classmethod
     def is_low_batt_item(cls, param):
@@ -842,7 +844,7 @@ class LowBattReporter(object):
 class LowBattReporterViaEventTracing(LowBattReporter):
     _min_check_period_sec = 30
     device_notifications = defaultdict(dict)
-    _max_time_wo_notification = _tdelta(days=4)
+    _max_time_wo_notification = _tdelta(days=7)
     _last_check = time.time()
 
     @classmethod
@@ -859,17 +861,20 @@ class LowBattReporterViaEventTracing(LowBattReporter):
         now = _ddatet.now()
         for device_name in cls.device_notifications:
             device_dict = cls.device_notifications[device_name]
-            delta_time_since_last_notification = \
-                (now - device_dict.get('last_device_notification', now))
             delta_time_since_last_msg_issue = \
                 (now - device_dict.get('last_msg_issue_time', now))
-            if delta_time_since_last_notification > cls._max_time_wo_notification \
-               and ('last_msg_issue_time' not in device_dict
-                    or delta_time_since_last_msg_issue > cls._msg_repetition_period):
-                msg = ("Device {} low battery. "
-                       "Device did not sent notification for {}"
-                       .format(device_name,
-                               Misc.format_timespan(delta_time_since_last_notification)))
+            msg_to_be_sent_as_repetition_period_is_hit = (
+                'last_msg_issue_time' not in device_dict
+                or delta_time_since_last_msg_issue > cls._msg_repetition_period)
+            delta_time_since_last_notification = \
+                (now - device_dict.get('last_device_notification', now))
+            too_long_no_notification = (
+                delta_time_since_last_notification > cls._max_time_wo_notification)         
+            if msg_to_be_sent_as_repetition_period_is_hit or too_long_no_notification:
+                msg = "Device {} reported low battery.".format(device_name)
+                if too_long_no_notification:
+                    msg = ("{} Device did not sent notification for {}"
+                           .format(Misc.format_timespan(delta_time_since_last_notification)))
                 Log.warning_pushover(msg, "Low Battery")
                 device_dict['last_msg_issue_time'] = now
 
@@ -992,7 +997,7 @@ class _MonkeyPatcher(object):
     class HM_LC_Sw4_DR_2(_RemoteRelaisSwitch4FoldBase):  # @NOSONAR @DontTrace
         type_name = u"HM-LC-Sw4-DR-2"
 
-    # Funk-T�r-/ Fensterkontakt  (als Fuellstandssensor verwendet)
+    # Funk-Tuer-/ Fensterkontakt  (als Fuellstandssensor verwendet)
     class HM_SCI_3_FM(entities.Device):  # @NOSONAR @DontTrace
         type_name = "HM-SCI-3-FM"
 
@@ -1690,12 +1695,29 @@ class WaterLevelSensors(object):
         global logger
         sensor_name = param.channel.device.name  # 'FuellstandSensorSued'
         ch_name = param.channel.name  # 'FuellstandSensorSuedLeer'
-        LowBattReporterViaEventTracing.add_device_notification(param)
-        if LowBattReporterViaEventTracing.is_low_batt_item(param):
-            return
         if param.channel.type.upper() == "MAINTENANCE":
             return
-        cls._sensors[sensor_name].add_state_change_event(ch_name, param.channel.is_open)
+        if LowBattReporterViaEventTracing.is_low_batt_item(param):
+            LowBattReporterViaEventTracing.add_device_notification(param)
+        if runs_in_online_sim_mode():
+            device_name = param.channel.device.name 
+            logger.info(u"   param.device.name: {}".format(device_name))
+            ch_name = param.channel.name 
+            logger.info(u"EVENT: channel.name: {}".format(ch_name))
+            if ch_name == "Maintenance":
+                return
+            logger.info(u"   param.control: {}".format(getattr(param, 'control', "unknown")))
+            logger.info(u"   param.id: {}".format(getattr(param, 'id', "unknown")))
+            logger.info(u"   param.flags: {}".format(getattr(param, 'flags', "unknown")))
+            logger.info(u"   param.operations: {}".format(getattr(param, 'operations', "unknown")))
+            logger.info(u"   param.internal_name: {}".format(getattr(param, 'internal_name', "unknown")))
+            channel = getattr(param, 'channel', "unknown")
+            logger.info(u"   param.channel: {}".format(channel))
+            is_open = getattr(channel, 'is_open', "unknown")
+            logger.info(u"   param.channel.is_open: {}".format(is_open))
+            logger.info
+        if param.id == "STATE":
+            cls._sensors[sensor_name].add_state_change_event(ch_name, param.channel.is_open)
 
     class _TimeHysteresisValue(object):
 

@@ -250,14 +250,17 @@ class WaterLevelSensors(object):
 
     @classmethod
     def callback_router_locked(cls, param):
-        # sensor_name = param.channel.device.name  # 'FuellstandSensorSued'
+        device_name = param.channel.device.name  # 'FuellstandSensorSued'
+        print(u"     param.device.name: {}".format(device_name))
         ch_name = param.channel.name  # 'FuellstandSensorSuedLeer'
         print(u"EVENT: channel.name: {}".format(ch_name))
-        print(u"     param.control: {}".format(param.control))
-        print(u"     param.id: {}".format(param.id))
-        print(u"     param.flags: {}".format(param.flags))
-        print(u"     param.operations: {}".format(param.operations))
-        print(u"     param.internal_name: {}".format(param.internal_name))
+        if ch_name == "Maintenance":
+            return
+        print(u"     param.control: {}".format(getattr(param, 'control', "unknown")))
+        print(u"     param.id: {}".format(getattr(param, 'id', "unknown")))
+        print(u"     param.flags: {}".format(getattr(param, 'flags', "unknown")))
+        print(u"     param.operations: {}".format(getattr(param, 'operations', "unknown")))
+        print(u"     param.internal_name: {}".format(getattr(param, 'internal_name', "unknown")))
         print(u"     unicode(param): {}".format(unicode(param)))
 
 
@@ -267,7 +270,7 @@ def create_ccu_obj():
     # can not be established within 5 seconds it raises an exception.
     kwargs = {
         # TODO: Replace this with the URL to your CCU2.
-        u'address': u"http://172.19.76.6",
+        u'address': u"http://172.19.76.11",
         # TODO: Insert your credentials here.
         u'credentials': (u"Admin", u"YetAPW123"),
         u'connect_timeout': 12}
@@ -281,18 +284,19 @@ class MainLoop(object):
     def main_event_loop(cls, sim_func):
         global logger
         print(u"Starting main")
-        func_sampler = IterantExecSampler(cls.main_event_loop_ex, max_try_count=5,
-                                          intermediate_wait_time=60.0,
-                                          exec_types_to_catch=(pmatic.PMConnectionError,
-                                                               pmatic.PMException))
-        func_sampler.run(sim_func)
+        cls.main_event_loop_ex(sim_func)
+        # func_sampler = IterantExecSampler(cls.main_event_loop_ex, max_try_count=5,
+        #                                   intermediate_wait_time=60.0,
+        #                                   exec_types_to_catch=(pmatic.PMConnectionError,
+        #                                                        pmatic.PMException))
+        # func_sampler.run(sim_func)
 
     @classmethod
     def main_event_loop_ex(cls, sim_func=None):
         global logger
-        INIT_WAIT_SEC = 20
-        print(u"Initially waiting {} sec".format(INIT_WAIT_SEC))
-        time.sleep(INIT_WAIT_SEC)
+        # INIT_WAIT_SEC = 10
+        # print(u"Initially waiting {} sec".format(INIT_WAIT_SEC))
+        # time.sleep(INIT_WAIT_SEC)
         create_ccu_obj()
         print(u"Init devices")
         WaterLevelSensors.init_devices()
@@ -304,9 +308,10 @@ class MainLoop(object):
     def _init_events():
         global ccu_obj
         print(u"Init events")
-        func_sampler = IterantExecSampler(ccu_obj.events.init, max_try_count=5,
-                                          intermediate_wait_time=lambda tc: tc * 5.0,)
-        func_sampler.run()
+        # func_sampler = IterantExecSampler(ccu_obj.events.init, max_try_count=5,
+        #                                   intermediate_wait_time=lambda tc: tc * 5.0,)
+        # func_sampler.run()
+        ccu_obj.events.init()
         print("  Events successfully initialized")
 
     @staticmethod
